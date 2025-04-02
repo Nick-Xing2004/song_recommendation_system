@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import StandardScaler
 
 #predict and recommend songs based on song's danceability, energy, and duration (measured in ms)
 
@@ -8,13 +9,21 @@ def train_model():
     df_song=pd.read_csv('./song_recommendation_system/data.csv')   #read in data
     X=df_song[['danceability', 'energy', 'duration_ms']]
     X=X.to_numpy()
-    return X, df_song
+
+    #standardize the features
+    scaler=StandardScaler()
+    X_standardized=scaler.fit_transform(X)
+    return X_standardized, df_song, scaler
 
 def euclidean_distance(user_input, song_features):
     return np.sqrt(np.sum((user_input-song_features)**2))
+    
 
-def recommend_songs(X, df_song, danceability, energy, duration_ms, k=5):
-    user_input=np.array([danceability, energy, duration_ms])
+def recommend_songs(X, df_song, danceability, energy, duration_ms, scaler, k=5):
+    #user input processing / standardization
+    user_input=np.array([[danceability, energy, duration_ms]])
+    user_input=scaler.transform(user_input)[0]
+
     distances=[]     #initialize a list for holding obtained euclidean distances
     for idx, song_features in enumerate(X):
         dist=euclidean_distance(user_input, song_features)  
@@ -29,12 +38,8 @@ def recommend_songs(X, df_song, danceability, energy, duration_ms, k=5):
         i+=1
 
 if __name__ == "__main__":
-    X, df_song=train_model()
+    X, df_song, scaler=train_model()        #scaler used for further user input standardization
     user_input=input("Please enter song danceability, energy, and time duration(in ms) for recommendations: ")
     danceability, energy, duration_ms = map(float, user_input.strip().split())
-    recommend_songs(X, df_song, danceability, energy, duration_ms)
 
-
-
-
-#feature standardization
+    recommend_songs(X, df_song, danceability, energy, duration_ms, scaler)
