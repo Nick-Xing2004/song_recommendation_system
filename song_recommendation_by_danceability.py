@@ -6,7 +6,7 @@ from sklearn.preprocessing import StandardScaler
 #predict and recommend songs based on song's danceability, energy, and duration (measured in ms)
 
 def train_model():  
-    df_song=pd.read_csv('./song_recommendation_system/data.csv')   #read in data
+    df_song=pd.read_csv('./data.csv')   #read in data
     X=df_song[['danceability', 'energy', 'duration_ms']]
     X=X.to_numpy()
 
